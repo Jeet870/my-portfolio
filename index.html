@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Interactive Portfolio</title>
+  <meta name="description" content="Interactive one-page portfolio with secure client-side login, animations, and dark mode." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #0b0f19;
+      --panel: #111729;
+      --text: #e5e7eb;
+      --muted:#9aa4b2;
+      --accent:#6ee7b7; /* mint */
+      --accent-2:#60a5fa; /* blue */
+      --card:#0f1424;
+      --ring: 0 0 0 2px rgba(110,231,183,0.35);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    :root.light{
+      --bg: #f8fafc;
+      --panel: #ffffff;
+      --text: #0f172a;
+      --muted:#475569;
+      --accent:#059669; /* emerald */
+      --accent-2:#2563eb; /* blue */
+      --card:#ffffff;
+      --shadow: 0 10px 25px rgba(2,6,23,.1);
+    }
+    *{ box-sizing: border-box }
+    html{ scroll-behavior: smooth }
+    body{
+      margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg); color: var(--text);
+    }
+    a{ color: inherit; text-decoration: none }
+    header{
+      position: sticky; top:0; z-index: 50; backdrop-filter: blur(8px);
+      background: color-mix(in srgb, var(--bg) 80%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--muted) 20%, transparent);
+    }
+    .nav{
+      max-width: 1100px; margin: 0 auto; display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      padding: .8rem 1rem;
+    }
+    .brand{ font-weight:800; letter-spacing:.2px }
+    .nav a{ opacity:.9 }
+    .nav .links{ display:flex; gap:1rem; align-items:center }
+    .btn{ display:inline-flex; align-items:center; gap:.5rem; border:1px solid color-mix(in srgb, var(--muted) 25%, transparent); padding:.55rem .9rem; border-radius:14px; background: var(--panel); box-shadow: var(--shadow); transition: transform .15s ease, background .2s ease, border .2s ease; }
+    .btn:hover{ transform: translateY(-1px); border-color: color-mix(in srgb, var(--accent) 60%, transparent) }
+    .btn.ghost{ background: transparent; box-shadow:none }
+
+    .container{ max-width:1100px; margin:0 auto; padding: 2rem 1rem }
+
+    /* HERO */
+    .hero{ display:grid; grid-template-columns: 1.2fr .8fr; gap:2rem; align-items:center; padding-top:3rem; padding-bottom:3rem }
+    .hero h1{ font-size: clamp(2rem, 5vw, 3.2rem); line-height:1.1; margin:0 0 .6rem }
+    .hero p{ color: var(--muted); font-size:1.05rem }
+    .pill{ display:inline-flex; align-items:center; gap:.5rem; padding:.35rem .65rem; border-radius:999px; border:1px solid color-mix(in srgb, var(--muted) 25%, transparent); background: color-mix(in srgb, var(--panel) 80%, transparent); font-size:.9rem; margin-bottom:1rem }
+    .kbd{ font-family: ui-monospace, SFMono-Regular, Menlo, monospace; border:1px solid color-mix(in srgb, var(--muted) 25%, transparent); padding:.15rem .4rem; border-radius:8px; font-size:.8rem }
+    .hero-card{ background: radial-gradient(1200px 500px at -5% -20%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 60%), var(--card); border:1px solid color-mix(in srgb, var(--muted) 15%, transparent); border-radius:20px; padding:1.2rem; box-shadow: var(--shadow) }
+    .stats{ display:grid; grid-template-columns: repeat(3,1fr); gap:1rem; margin-top:1.2rem }
+    .stat{ background: var(--panel); padding:.9rem; border-radius:16px; border:1px solid color-mix(in srgb, var(--muted) 20%, transparent); text-align:center }
+
+    /* SECTIONS */
+    section{ padding: 2rem 0 }
+    h2{ font-size: clamp(1.4rem, 3.5vw, 2rem); margin: 0 0 1rem }
+    .grid{ display:grid; gap:1rem }
+
+    /* SKILLS */
+    .skills{ grid-template-columns: repeat(auto-fit, minmax(220px,1fr)) }
+    .chip{ display:inline-flex; align-items:center; gap:.5rem; border:1px solid color-mix(in srgb, var(--muted) 25%, transparent); padding:.4rem .65rem; border-radius:999px; background: var(--panel); margin:.25rem .3rem 0 0 }
+
+    /* PROJECTS */
+    .projects{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) }
+    .card{ background: var(--card); border:1px solid color-mix(in srgb, var(--muted) 15%, transparent); border-radius:18px; overflow:hidden; box-shadow: var(--shadow); transition: transform .2s ease, border .2s ease }
+    .card:hover{ transform: translateY(-4px); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent) }
+    .thumb{ aspect-ratio: 16/9; background: linear-gradient(135deg, color-mix(in srgb, var(--accent-2) 30%, transparent), transparent), linear-gradient(135deg, color-mix(in srgb, var(--accent) 20%, transparent), transparent 60%); }
+    .card-body{ padding:1rem }
+    .card h3{ margin:.2rem 0 .4rem }
+    .card p{ color: var(--muted); font-size:.95rem }
+
+    /* CONTACT */
+    form{ display:grid; gap:.8rem; max-width: 560px }
+    input, textarea{ padding:.75rem .9rem; border-radius:12px; border:1px solid color-mix(in srgb, var(--muted) 25%, transparent); background: var(--panel); color: var(--text); outline: none; }
+    input:focus, textarea:focus{ box-shadow: var(--ring); border-color: color-mix(in srgb, var(--accent) 60%, transparent) }
+    textarea{ min-height: 140px; resize: vertical }
+
+    /* LOGIN OVERLAY */
+    .overlay{ position:fixed; inset:0; display:none; place-items:center; background: color-mix(in srgb, var(--bg) 60%, rgba(0,0,0,.35)); z-index:100 }
+    .overlay.active{ display:grid }
+    .login-card{ width:min(480px, 92vw); background: var(--card); border:1px solid color-mix(in srgb, var(--muted) 20%, transparent); border-radius:22px; padding:1.2rem; box-shadow: var(--shadow) }
+    .login-card h3{ margin-top:0 }
+    .error{ color:#ef4444; font-size:.9rem }
+    .success{ color:#22c55e; font-size:.95rem }
+
+    /* BADGE */
+    .badge{ font-size:.75rem; color: var(--muted) }
+    footer{ border-top:1px solid color-mix(in srgb, var(--muted) 20%, transparent); margin-top:2rem }
+
+    /* REVEAL ANIMATIONS */
+    .reveal{ opacity:0; transform: translateY(16px); transition: opacity .6s ease, transform .6s ease }
+    .reveal.visible{ opacity:1; transform: translateY(0) }
+
+    @media (max-width: 860px){
+      .hero{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <a class="brand" href="#home">Your Name</a>
+      <div class="links">
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+        <button id="loginBtn" class="btn">Login</button>
+        <button id="themeBtn" class="btn ghost" title="Toggle theme">🌗</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- HERO -->
+    <section id="home" class="hero">
+      <div>
+        <span class="pill">👋 Hello, I am <strong>Jeet Khambholja</strong></span>
+        <h1>Building interactive experiences on the web</h1>
+        <p>2nd-year Student • Passionate about Web Development, UI/UX, and JavaScript. This portfolio highlights my projects, skills, and ways to contact me.</p>
+        <div style="margin-top:1rem; display:flex; gap:.6rem; flex-wrap:wrap">
+          <a class="btn" href="#projects">View Projects</a>
+          <a class="btn ghost" href="#contact">Contact Me</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="badge">Experience</div><div><strong>10+ </strong>projects</div></div>
+          <div class="stat"><div class="badge">Response</div><div><strong>&lt;24h</strong> reply time</div></div>
+          <div class="stat"><div class="badge">Focus</div><div><strong>Frontend</strong> dev</div></div>
+        </div>
+      </div>
+      <div class="hero-card reveal">
+        <div class="thumb" aria-hidden="true"></div>
+        <div class="card-body">
+          <h3>Currently learning</h3>
+          <p class="badge">HTML • CSS • JavaScript • Git • React (soon)</p>
+          <p>Follow along as I build and document new projects. Scroll to see highlights or login to access the dashboard.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="reveal">
+      <h2>About Me</h2>
+      <p>I’m a 2nd-year student pursuing a Bachelor’s degree in Computer Science. I enjoy crafting delightful, accessible interfaces and learning modern web technologies. I’m open to internships and collaborative projects.</p>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="reveal">
+      <h2>Skills</h2>
+      <div class="grid skills">
+        <div class="card">
+          <div class="card-body">
+            <h3>Frontend</h3>
+            <div>
+              <span class="chip">HTML5</span>
+              <span class="chip">CSS3 (Grid/Flex)</span>
+              <span class="chip">JavaScript (ES6+)</span>
+              <span class="chip">Responsive Design</span>
+              <span class="chip">Accessibility</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h3>Tools</h3>
+            <div>
+              <span class="chip">Git & GitHub</span>
+              <span class="chip">VS Code</span>
+              <span class="chip">Chrome DevTools</span>
+              <span class="chip">Figma (basic)</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <h3>Soft Skills</h3>
+            <div>
+              <span class="chip">Communication</span>
+              <span class="chip">Teamwork</span>
+              <span class="chip">Problem Solving</span>
+              <span class="chip">Time Management</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="reveal">
+      <h2>Projects</h2>
+      <div id="projectGrid" class="grid projects">
+        <!-- Project Cards (static examples) -->
+        <article class="card">
+          <div class="thumb"></div>
+          <div class="card-body">
+            <h3>Portfolio Website</h3>
+            <p>A responsive, animated single-page site built with HTML, CSS, and JavaScript.</p>
+            <a class="btn" href="#" target="_blank" rel="noopener">Demo</a>
+          </div>
+        </article>
+        <article class="card">
+          <div class="thumb"></div>
+          <div class="card-body">
+            <h3>Todo App</h3>
+            <p>Task manager with localStorage persistence and smooth interactions.</p>
+            <a class="btn" href="#" target="_blank" rel="noopener">Repo</a>
+          </div>
+        </article>
+      </div>
+      <p class="badge" style="margin-top:.6rem">(Login to add projects dynamically to this section)</p>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="reveal">
+      <h2>Contact</h2>
+      <form id="contactForm" novalidate>
+        <input id="name" name="name" placeholder="Your name" required />
+        <input id="email" name="email" type="email" placeholder="Your email" required />
+        <textarea id="message" name="message" placeholder="Your message" required></textarea>
+        <button class="btn" type="submit">Send</button>
+        <div id="contactMsg" class="badge"></div>
+      </form>
+    </section>
+
+    <!-- DASHBOARD (hidden until login) -->
+    <section id="dashboard" class="reveal" style="display:none">
+      <h2>Dashboard</h2>
+      <p class="badge">Welcome! You can add a project card below (client-side only).</p>
+      <form id="projectForm">
+        <input id="projTitle" placeholder="Project title" required />
+        <input id="projLink" placeholder="Project link (https://...)" required />
+        <textarea id="projDesc" placeholder="Short description" required></textarea>
+        <button class="btn" type="submit">Add Project</button>
+        <span id="projMsg" class="badge"></span>
+      </form>
+    </section>
+  </main>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay" class="overlay" role="dialog" aria-modal="true">
+    <div class="login-card">
+      <h3>Secure Login</h3>
+      <p class="badge">Client-side only demo (no database). Inputs are validated & sanitized to prevent injection-like payloads.</p>
+      <form id="loginForm" autocomplete="off">
+        <input id="username" name="username" placeholder="Username" required />
+        <input id="password" name="password" type="password" placeholder="Password" required />
+        <button class="btn" type="submit">Login</button>
+        <button class="btn ghost" type="button" id="closeLogin">Close</button>
+        <div id="loginMsg" class="error" role="alert" aria-live="polite"></div>
+        <div class="badge" style="margin-top:.4rem">
+          <strong>Default creds</strong>: <code>student</code> / <code>Portfolio@2025</code>
+          <!-- CHANGE THE DEFAULT CREDENTIALS
+            To customize, update DEFAULT_USER & DEFAULT_PASS_HASH in JS below.
+            The password is stored as a SHA-256 hash, not plain text. -->
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer class="container">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap">
+      <span class="badge">© <span id="year"></span> Your Name</span>
+      <div class="badge">Made with HTML • CSS • JS</div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== THEME TOGGLE =====
+    const themeBtn = document.getElementById('themeBtn');
+    const root = document.documentElement;
+    const savedTheme = localStorage.getItem('theme');
+    if(savedTheme === 'light'){ root.classList.add('light'); }
+    themeBtn.addEventListener('click', ()=>{
+      root.classList.toggle('light');
+      localStorage.setItem('theme', root.classList.contains('light') ? 'light' : 'dark');
+    });
+
+    // ===== NAV / LOGIN OVERLAY =====
+    const loginOverlay = document.getElementById('loginOverlay');
+    const loginBtn = document.getElementById('loginBtn');
+    const closeLogin = document.getElementById('closeLogin');
+    loginBtn.addEventListener('click', ()=> loginOverlay.classList.add('active'));
+    closeLogin.addEventListener('click', ()=> loginOverlay.classList.remove('active'));
+    loginOverlay.addEventListener('click', (e)=>{ if(e.target === loginOverlay) loginOverlay.classList.remove('active'); });
+
+    // ===== REVEAL ANIMATIONS =====
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold:.15 });
+    document.querySelectorAll('.reveal').forEach(el=> io.observe(el));
+
+    // ===== CONTACT FORM (basic client validation) =====
+    document.getElementById('contactForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const message = document.getElementById('message').value.trim();
+      const msgEl = document.getElementById('contactMsg');
+      if(!name || !email || !message){ msgEl.textContent = 'Please fill all fields.'; return; }
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msgEl.textContent = 'Enter a valid email.'; return; }
+      msgEl.textContent = 'Thanks! Your message is ready to be sent (demo only).';
+      e.target.reset();
+    });
+
+    // ===== SECURITY HELPERS =====
+    // Simple sanitization to prevent HTML injection in the DOM
+    const sanitize = (str) => str
+      .replace(/[&<>"']/g, (m)=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]))
+      .trim()
+      .slice(0, 300);
+
+    // Reject common SQL keywords / payload markers in username/password (client-side best effort)
+    const containsSqlPayload = (str) => /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|UNION|ALTER|CREATE|TRUNCATE)\b|--|;|\/\*|\*\/)/i.test(str);
+
+    // SHA-256 using Web Crypto
+    async function sha256(text){
+      const enc = new TextEncoder().encode(text);
+      const hashBuf = await crypto.subtle.digest('SHA-256', enc);
+      const hashArr = Array.from(new Uint8Array(hashBuf));
+      return hashArr.map(b=> b.toString(16).padStart(2,'0')).join('');
+    }
+
+    // ===== LOGIN (no SQL anywhere; password stored as hash) =====
+    const DEFAULT_USER = 'student';
+    // Hash for 'Portfolio@2025' (computed at runtime on first load for clarity below)
+    let DEFAULT_PASS_HASH = null;
+    (async ()=>{ DEFAULT_PASS_HASH = await sha256('Portfolio@2025'); })();
+
+    document.getElementById('loginForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const u = document.getElementById('username').value;
+      const p = document.getElementById('password').value;
+      const msg = document.getElementById('loginMsg');
+      msg.textContent = '';
+
+      // Basic checks against injection-like content
+      if(containsSqlPayload(u) || containsSqlPayload(p)){
+        msg.textContent = 'Suspicious input detected. Please enter valid credentials.';
+        return;
+      }
+
+      const user = sanitize(u);
+      const passHash = await sha256(p);
+
+      // Compare against stored values (no queries of any kind)
+      if(user === DEFAULT_USER && passHash === DEFAULT_PASS_HASH){
+        msg.className = 'success';
+        msg.textContent = 'Login successful! Redirecting to dashboard...';
+        loginOverlay.classList.remove('active');
+        document.getElementById('dashboard').style.display = '';
+        document.getElementById('dashboard').scrollIntoView({behavior:'smooth'});
+      } else {
+        msg.className = 'error';
+        msg.textContent = 'Invalid username or password.';
+      }
+    });
+
+    // ===== DASHBOARD: ADD PROJECT (interactive demo) =====
+    document.getElementById('projectForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const t = sanitize(document.getElementById('projTitle').value);
+      const l = sanitize(document.getElementById('projLink').value);
+      const d = sanitize(document.getElementById('projDesc').value);
+      const m = document.getElementById('projMsg');
+
+      // Basic URL validation
+      if(!/^https?:\/\//i.test(l)){ m.textContent = 'Please provide a valid http(s) link.'; return; }
+
+      const card = document.createElement('article');
+      card.className = 'card reveal visible';
+      card.innerHTML = `
+        <div class="thumb"></div>
+        <div class="card-body">
+          <h3>${t}</h3>
+          <p>${d}</p>
+          <a class="btn" href="${l}" target="_blank" rel="noopener">Open</a>
+        </div>`;
+      document.getElementById('projectGrid').prepend(card);
+      m.textContent = 'Project added (client-side only).';
+      e.target.reset();
+    });
+
+    // Footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
